@@ -5,6 +5,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import com.google.gson.Gson;
 
@@ -32,8 +33,10 @@ public class JsonDownloader {
 	 * @param out Output Folder for dependencies
 	 * @param json Link to all dependencies
 	 */
-	public static void downloadDeps(File out, URL json) {
+	public static void downloadDeps(File out, URL json, File jvmCache) {
+		int time = (int) System.currentTimeMillis();
 		out.mkdir();
+		jvmCache.mkdir();
 		File natives = new File(out, "natives");
 		File libs = new File(out, "libraries");
 		File runtime = new File(out, ".minecraft");
@@ -53,7 +56,7 @@ public class JsonDownloader {
 					System.out.println(String.format("[JsonDownloader] Downloading %s...", library.downloads.artifact.path.replaceAll("/", "\\.")));
 				}
 				if (library.downloads.classifiers != null) {
-					NativesDownload nativesWin32 = library.downloads.classifiers.nativesWindows32;
+					NativesDownload nativesWin32 = library.downloads.classifiers.nativesWindows32; 	
 					NativesDownload nativesWin64 = library.downloads.classifiers.nativesWindows64;
 					NativesDownload nativesWin = library.downloads.classifiers.nativesWindows;
 					NativesDownload nativesLinux = library.downloads.classifiers.nativesLinux;
@@ -62,62 +65,81 @@ public class JsonDownloader {
 						case WIN64:
 							if (nativesWin64 != null) {
 								Files.copy(new URL(nativesWin64.url).openStream(), new File(natives, nativesWin64.path.replaceAll("/", "\\.")).toPath());
-								unzipNatives(natives, nativesWin64.path.replaceAll("/", "\\."));
+								unzipFileAndDelete(natives, nativesWin64.path.replaceAll("/", "\\."), "natives");
 							}
 							if (nativesWin != null) {
 								Files.copy(new URL(nativesWin.url).openStream(), new File(natives, nativesWin.path.replaceAll("/", "\\.")).toPath());
-								unzipNatives(natives, nativesWin.path.replaceAll("/", "\\."));
+								unzipFileAndDelete(natives, nativesWin.path.replaceAll("/", "\\."), "natives");
 							}
 							break;
 						case WIN32:
 							if (nativesWin32 != null) {
 								Files.copy(new URL(nativesWin32.url).openStream(), new File(natives, nativesWin32.path.replaceAll("/", "\\.")).toPath());
-								unzipNatives(natives, nativesWin32.path.replaceAll("/", "\\."));
+								unzipFileAndDelete(natives, nativesWin32.path.replaceAll("/", "\\."), "natives");
 							}
 							if (nativesWin != null) {
 								Files.copy(new URL(nativesWin.url).openStream(), new File(natives, nativesWin.path.replaceAll("/", "\\.")).toPath());
-								unzipNatives(natives, nativesWin.path.replaceAll("/", "\\."));
+								unzipFileAndDelete(natives, nativesWin.path.replaceAll("/", "\\."), "natives");
 							}
 							break;
 						case LINUX:
 							if (nativesLinux != null) {
 								Files.copy(new URL(nativesLinux.url).openStream(), new File(natives, nativesLinux.path.replaceAll("/", "\\.")).toPath());
-								unzipNatives(natives, nativesLinux.path.replaceAll("/", "\\."));
+								unzipFileAndDelete(natives, nativesLinux.path.replaceAll("/", "\\."), "natives");
 							}
 							break;
 						case OSX:
 							if (nativesOsx != null) {
 								Files.copy(new URL(nativesOsx.url).openStream(), new File(natives, nativesOsx.path.replaceAll("/", "\\.")).toPath());
-								unzipNatives(natives, nativesOsx.path.replaceAll("/", "\\."));
+								unzipFileAndDelete(natives, nativesOsx.path.replaceAll("/", "\\."), "natives");
 							}
 							break;
 					}
 				}
 			}
 		} catch (Exception e) {
+			Utils.deleteDirectory(out);
 			throw new ConnectionException("Error downloading dependencies", e);
 		}
 		try {
 			System.out.println(String.format("[JsonDownloader] Downloading Client..."));
 			Files.copy(new URL(in.downloads.client.url).openStream(), new File(natives, "client.jar").toPath());
 		} catch (Exception e) {
+			Utils.deleteDirectory(out);
 			throw new ConnectionException("Error downloading client", e);
 		}
-		System.out.println(String.format("[JsonDownloader] All files successfully downloaded"));
+		File jvm = new File(jvmCache, "adoptopenjdk-" + in.javaVersion.majorVersion);
+		try {
+			if (!jvm.exists()) {
+				jvm.mkdir();
+				System.out.println(String.format("[JsonDownloader] Downloading JVM..."));
+				String url = "https://mgnet.work/jvm/AdoptOpenJDK-Java" + in.javaVersion.majorVersion + "-";
+				if (os == Os.LINUX) url += "Linux.zip";
+				else if (os == Os.OSX) url += "OSX.zip";
+				else url += "Windows.zip";
+				Files.copy(new URL(url).openStream(), new File(jvm, "jvm.zip").toPath());
+				System.out.println(String.format("[JsonDownloader] Extracting JVM..."));
+				unzipFileAndDelete(jvm, "jvm.zip", "jvm");
+			}
+		} catch (Exception e) {
+			Utils.deleteDirectory(jvm);
+			throw new ConnectionException("Error downloading JVM", e);
+		}
+		System.out.println(String.format(Locale.ENGLISH, "[JsonDownloader] All files successfully downloaded. Took %.2f seconds", (((int) System.currentTimeMillis()) - time) / 1000.0f));
 	}
 
-	private static void unzipNatives(File natives, String nativeJar) {
-		ZipFile zip = new ZipFile(new File(natives, nativeJar));
-		System.out.println(String.format("[JsonDownloader] Extracting Natives: %s", nativeJar));
+	private static void unzipFileAndDelete(File zipDir, String zipFile, String job) {
+		ZipFile zip = new ZipFile(new File(zipDir, zipFile));
+		System.out.println(String.format("[JsonDownloader] Extracting %s: %s", job, zipFile));
 		try {
 			for (FileHeader fileHeader : zip.getFileHeaders()) {
-				if (fileHeader.isDirectory() || fileHeader.getFileName().contains("/") || fileHeader.getFileName().contains("\\")) continue;
-				zip.extractFile(fileHeader, new File(natives, fileHeader.getFileName()).getAbsolutePath());
+				if (fileHeader.getFileName().contains("META-INF")) continue;
+				zip.extractFile(fileHeader, zipDir.getAbsolutePath());
 				System.out.println(String.format("[JsonDownloader]     %s", fileHeader.getFileName()));
 			}
-			new File(natives, nativeJar).delete();
+			new File(zipDir, zipFile).delete();
 		} catch (ZipException e) {
-			throw new ExtractionException("Error extracting natives: " + nativeJar, e);
+			throw new ExtractionException("Error extracting " + job + ": " + zipFile, e);
 		}
 	}
 
