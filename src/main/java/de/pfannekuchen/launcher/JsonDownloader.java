@@ -17,6 +17,7 @@ import de.pfannekuchen.launcher.json.Rule;
 import de.pfannekuchen.launcher.json.VersionJson;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.model.FileHeader;
 
 /**
  * Downloads all dependencies from a given json file url
@@ -35,18 +36,22 @@ public class JsonDownloader {
 		out.mkdir();
 		File natives = new File(out, "natives");
 		File libs = new File(out, "libraries");
+		File runtime = new File(out, ".minecraft");
+		runtime.mkdir();
 		natives.mkdir();
 		libs.mkdir();
 		VersionJson in = gson.fromJson(Utils.readAllBytesAsStringFromURL(json), VersionJson.class);
 		System.out.println(String.format("[JsonDownloader] Downloading Dependencies for Minecraft version %s", in.id));
-		System.out.println(in.mainClass + "|" + in.minecraftArguments);
 		Os os = Utils.getOs();
 		System.out.println(String.format("[JsonDownloader] Detected operating system: %s", os.name()));
 		List<Library> dependencies = sortOutDependencies(in.libraries, os);
 		System.out.println(String.format("[JsonDownloader] Fetching %d dependencies", dependencies.size()));
 		try {
 			for (Library library : dependencies) {
-				if (library.downloads.artifact != null) Files.copy(new URL(library.downloads.artifact.url).openStream(), new File(libs, library.downloads.artifact.path.replaceAll("/", "\\.")).toPath());
+				if (library.downloads.artifact != null) {
+					Files.copy(new URL(library.downloads.artifact.url).openStream(), new File(libs, library.downloads.artifact.path.replaceAll("/", "\\.")).toPath());
+					System.out.println(String.format("[JsonDownloader] Downloading %s...", library.downloads.artifact.path.replaceAll("/", "\\.")));
+				}
 				if (library.downloads.classifiers != null) {
 					NativesDownload nativesWin32 = library.downloads.classifiers.nativesWindows32;
 					NativesDownload nativesWin64 = library.downloads.classifiers.nativesWindows64;
@@ -92,12 +97,25 @@ public class JsonDownloader {
 		} catch (Exception e) {
 			throw new ConnectionException("Error downloading dependencies", e);
 		}
+		try {
+			System.out.println(String.format("[JsonDownloader] Downloading Client..."));
+			Files.copy(new URL(in.downloads.client.url).openStream(), new File(natives, "client.jar").toPath());
+		} catch (Exception e) {
+			throw new ConnectionException("Error downloading client", e);
+		}
+		System.out.println(String.format("[JsonDownloader] All files successfully downloaded"));
 	}
 
 	private static void unzipNatives(File natives, String nativeJar) {
 		ZipFile zip = new ZipFile(new File(natives, nativeJar));
+		System.out.println(String.format("[JsonDownloader] Extracting Natives: %s", nativeJar));
 		try {
-			zip.extractAll(natives.getAbsolutePath());
+			for (FileHeader fileHeader : zip.getFileHeaders()) {
+				if (fileHeader.isDirectory() || fileHeader.getFileName().contains("/") || fileHeader.getFileName().contains("\\")) continue;
+				zip.extractFile(fileHeader, new File(natives, fileHeader.getFileName()).getAbsolutePath());
+				System.out.println(String.format("[JsonDownloader]     %s", fileHeader.getFileName()));
+			}
+			new File(natives, nativeJar).delete();
 		} catch (ZipException e) {
 			throw new ExtractionException("Error extracting natives: " + nativeJar, e);
 		}
