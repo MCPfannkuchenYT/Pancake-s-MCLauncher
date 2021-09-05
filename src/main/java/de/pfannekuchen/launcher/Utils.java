@@ -1,0 +1,41 @@
+package de.pfannekuchen.launcher;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.Locale;
+
+import de.pfannekuchen.launcher.exceptions.ConnectionException;
+import de.pfannekuchen.launcher.exceptions.OperatingSystemException;
+
+class Utils {
+
+	enum Os {
+		WIN32, WIN64, OSX, LINUX
+	}
+	
+	static Os getOs() {
+		String stringOs = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
+		if (stringOs.contains("mac") || stringOs.contains("darwin")) return Os.OSX;
+		else if (stringOs.contains("win")) return new File("C:\\Windows\\SysWOW64").exists() ? Os.WIN64 : Os.WIN32;
+		else if (stringOs.contains("nux")) return Os.LINUX;
+		throw new OperatingSystemException("Unsupported Operating System: " + stringOs);
+	}
+	
+	static String readAllBytesAsStringFromURL(URL url) {
+	    try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()))) {
+	        StringBuffer buffer = new StringBuffer();
+	        int read;
+	        char[] chars = new char[1024];
+	        while ((read = reader.read(chars)) != -1)
+	            buffer.append(chars, 0, read); 
+
+	        return buffer.toString();
+	    } catch (IOException e) {
+			throw new ConnectionException("Failed downloading: " + url.toString(), e);
+		}
+	}
+	
+}
