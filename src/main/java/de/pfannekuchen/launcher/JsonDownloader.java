@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import com.google.gson.Gson;
-
 import de.pfannekuchen.launcher.Utils.Os;
 import de.pfannekuchen.launcher.exceptions.ConnectionException;
 import de.pfannekuchen.launcher.exceptions.ExtractionException;
@@ -25,15 +23,13 @@ import net.lingala.zip4j.model.FileHeader;
  * @author Pancake
  */
 public class JsonDownloader {
-
-	private static final Gson gson = new Gson();
 	
 	/**
 	 * Downloads the dependencies into the folder
 	 * @param out Output Folder for dependencies
-	 * @param json Link to all dependencies
+	 * @param in Json to go off
 	 */
-	public static void downloadDeps(File out, URL json, File jvmCache) {
+	public static void downloadDeps(File out, VersionJson in, File jvmCache) {
 		int time = (int) System.currentTimeMillis();
 		out.mkdir();
 		jvmCache.mkdir();
@@ -43,7 +39,6 @@ public class JsonDownloader {
 		runtime.mkdir();
 		natives.mkdir();
 		libs.mkdir();
-		VersionJson in = gson.fromJson(Utils.readAllBytesAsStringFromURL(json), VersionJson.class);
 		System.out.println(String.format("[JsonDownloader] Downloading Dependencies for Minecraft version %s", in.id));
 		Os os = Utils.getOs();
 		System.out.println(String.format("[JsonDownloader] Detected operating system: %s", os.name()));
@@ -103,7 +98,7 @@ public class JsonDownloader {
 		}
 		try {
 			System.out.println(String.format("[JsonDownloader] Downloading Client..."));
-			Files.copy(new URL(in.downloads.client.url).openStream(), new File(natives, "client.jar").toPath());
+			Files.copy(new URL(in.downloads.client.url).openStream(), new File(out, "client.jar").toPath());
 		} catch (Exception e) {
 			Utils.deleteDirectory(out);
 			throw new ConnectionException("Error downloading client", e);
