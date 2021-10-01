@@ -108,7 +108,7 @@ public class JsonDownloader {
 			if (!jvm.exists()) {
 				jvm.mkdir();
 				System.out.println(String.format("[JsonDownloader] Downloading JVM..."));
-				String url = "https://mgnet.work/jvm/AdoptOpenJDK-Java" + in.javaVersion.majorVersion + "-";
+				String url = "https://data.mgnet.work/java/AdoptOpenJDK-Java" + in.javaVersion.majorVersion + "-";
 				if (os == Os.LINUX) url += "Linux.zip";
 				else if (os == Os.OSX) url += "OSX.zip";
 				else url += "Windows.zip";
