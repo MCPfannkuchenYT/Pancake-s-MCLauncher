@@ -30,7 +30,7 @@ public class MinecraftLauncher {
 				libraries.getAbsolutePath() + ((os == Os.WIN32 || os == Os.WIN64) ? "\\*" : "/*"),
 				natives.getAbsolutePath(),
 				json.mainClass,
-				json.minecraftArguments.replaceAll("\\$\\{auth_player_name\\}", username).replaceAll("\\$\\{version\\}", json.id).replaceAll("\\$\\{game_directory\\}", minecraft.getAbsolutePath()).replaceAll("\\$\\{assets_root\\}", assetsDir).replaceAll("\\$\\{assets_index_name\\}", json.assetIndex.id).replaceAll("\\$\\{auth_uuid\\}", uuid).replaceAll("\\$\\{auth_access_token\\}", accessToken).replaceAll("\\$\\{user_properties\\}", "").replaceAll("\\$\\{user_type\\}", "mojang"));
+				json.minecraftArguments.replaceAll("\\$\\{auth_player_name\\}", username).replaceAll("\\$\\{version\\}", json.id).replaceAll("\\$\\{game_directory\\}", "\"" + minecraft.getAbsolutePath().replaceAll("\\\\", "\\\\\\\\") + "\"").replaceAll("\\$\\{assets_root\\}", "\"" + assetsDir.replaceAll("\\\\", "\\\\\\\\") + "\"").replaceAll("\\$\\{assets_index_name\\}", json.assetIndex.id).replaceAll("\\$\\{auth_uuid\\}", uuid).replaceAll("\\$\\{auth_access_token\\}", accessToken).replaceAll("\\$\\{user_properties\\}", "").replaceAll("\\$\\{user_type\\}", "mojang"));
 		System.out.println(String.format("[MinecraftLauncher] Launching via console arguments: %s", commandLine));
 		ProcessBuilder builder = new ProcessBuilder(commandLine.split(" "));
 		builder.directory(minecraft);
