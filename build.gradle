@@ -3,7 +3,14 @@ plugins {
     id 'java-library'
     // Apply the shadow plugin for exporting with dependencies
     id "com.github.johnrengelman.shadow" version "7.0.0"
+    // Apply the publishing plugin for publishing
+    id 'maven-publish'
 }
+
+// Basic Properties
+group = "de.pfannekuchen"
+version = "1.0.0-SNAPSHOT"
+archivesBaseName = "launcher"
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -17,6 +24,20 @@ dependencies {
 	implementation 'net.lingala.zip4j:zip4j:2.9.0'
 }
 
+// Publishing Settings
+publishing {
+	publications {
+		maven(MavenPublication) {
+			groupId = project.group
+			version = project.version
+			artifactId = project.archivesBaseName
+			
+			from components.java
+		}
+	}
+}
+
+// Change the Main Class
 jar {
 	manifest {
 		attributes("Main-Class": "de.pfannekuchen.launcher.LaunchMain")
