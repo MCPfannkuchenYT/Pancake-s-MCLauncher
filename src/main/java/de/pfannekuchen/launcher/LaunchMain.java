@@ -26,7 +26,7 @@ public class LaunchMain {
 		File jvmCache = new File(System.getProperty("user.home"), ".jvmcache");
 		if (out.exists()) Utils.deleteDirectory(out);
 		if (jvmCache.exists()) Utils.deleteDirectory(jvmCache);
-		VersionJson in = gson.fromJson(Utils.readAllBytesAsStringFromURL(new URL("https://launchermeta.mojang.com/v1/packages/0a5a761091458d69e3dea629a018eff7d74eb534/1.8.9.json")), VersionJson.class);
+		VersionJson in = gson.fromJson(Utils.readAllBytesAsStringFromURL(new URL("https://launchermeta.mojang.com/v1/packages/f07e0f1228f79b9b04313fc5640cd952474ba6f5/1.12.2.json")), VersionJson.class);
 		
 		JsonDownloader.downloadDeps(out, in, jvmCache);
 		MinecraftLauncher.launch(out, new File(out, "natives"), new File(out, "libraries"), new File(out, ".minecraft"), jvmCache, in, true, "Pfannekuchen", new File(out, "assets").getAbsolutePath(), "uuidLuL", "accesme");

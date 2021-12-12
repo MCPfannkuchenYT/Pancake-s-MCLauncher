@@ -61,7 +61,7 @@ public class JsonDownloader {
 		try {
 			for (Library library : dependencies) {
 				if (library.downloads.artifact != null) {
-					Files.copy(new URL(library.downloads.artifact.url).openStream(), new File(libs, library.downloads.artifact.path.replaceAll("/", "\\.")).toPath());
+					Files.copy(new URL(library.downloads.artifact.url).openStream(), new File(libs, library.downloads.artifact.path.replaceAll("/", "\\.")).toPath(), StandardCopyOption.REPLACE_EXISTING);
 					System.out.println(String.format("[JsonDownloader] Downloading %s...", library.downloads.artifact.path.replaceAll("/", "\\.")));
 				}
 				if (library.downloads.classifiers != null) {
@@ -73,33 +73,33 @@ public class JsonDownloader {
 					switch (os) {
 						case WIN64:
 							if (nativesWin64 != null) {
-								Files.copy(new URL(nativesWin64.url).openStream(), new File(natives, nativesWin64.path.replaceAll("/", "\\.")).toPath());
+								Files.copy(new URL(nativesWin64.url).openStream(), new File(natives, nativesWin64.path.replaceAll("/", "\\.")).toPath(), StandardCopyOption.REPLACE_EXISTING);
 								unzipFileAndDelete(natives, nativesWin64.path.replaceAll("/", "\\."), "natives");
 							}
 							if (nativesWin != null) {
-								Files.copy(new URL(nativesWin.url).openStream(), new File(natives, nativesWin.path.replaceAll("/", "\\.")).toPath());
+								Files.copy(new URL(nativesWin.url).openStream(), new File(natives, nativesWin.path.replaceAll("/", "\\.")).toPath(), StandardCopyOption.REPLACE_EXISTING);
 								unzipFileAndDelete(natives, nativesWin.path.replaceAll("/", "\\."), "natives");
 							}
 							break;
 						case WIN32:
 							if (nativesWin32 != null) {
-								Files.copy(new URL(nativesWin32.url).openStream(), new File(natives, nativesWin32.path.replaceAll("/", "\\.")).toPath());
+								Files.copy(new URL(nativesWin32.url).openStream(), new File(natives, nativesWin32.path.replaceAll("/", "\\.")).toPath(), StandardCopyOption.REPLACE_EXISTING);
 								unzipFileAndDelete(natives, nativesWin32.path.replaceAll("/", "\\."), "natives");
 							}
 							if (nativesWin != null) {
-								Files.copy(new URL(nativesWin.url).openStream(), new File(natives, nativesWin.path.replaceAll("/", "\\.")).toPath());
+								Files.copy(new URL(nativesWin.url).openStream(), new File(natives, nativesWin.path.replaceAll("/", "\\.")).toPath(), StandardCopyOption.REPLACE_EXISTING);
 								unzipFileAndDelete(natives, nativesWin.path.replaceAll("/", "\\."), "natives");
 							}
 							break;
 						case LINUX:
 							if (nativesLinux != null) {
-								Files.copy(new URL(nativesLinux.url).openStream(), new File(natives, nativesLinux.path.replaceAll("/", "\\.")).toPath());
+								Files.copy(new URL(nativesLinux.url).openStream(), new File(natives, nativesLinux.path.replaceAll("/", "\\.")).toPath(), StandardCopyOption.REPLACE_EXISTING);
 								unzipFileAndDelete(natives, nativesLinux.path.replaceAll("/", "\\."), "natives");
 							}
 							break;
 						case OSX:
 							if (nativesOsx != null) {
-								Files.copy(new URL(nativesOsx.url).openStream(), new File(natives, nativesOsx.path.replaceAll("/", "\\.")).toPath());
+								Files.copy(new URL(nativesOsx.url).openStream(), new File(natives, nativesOsx.path.replaceAll("/", "\\.")).toPath(), StandardCopyOption.REPLACE_EXISTING);
 								unzipFileAndDelete(natives, nativesOsx.path.replaceAll("/", "\\."), "natives");
 							}
 							break;
@@ -112,7 +112,7 @@ public class JsonDownloader {
 		}
 		try {
 			System.out.println(String.format("[JsonDownloader] Downloading Client..."));
-			Files.copy(new URL(in.downloads.client.url).openStream(), new File(out, "client.jar").toPath());
+			Files.copy(new URL(in.downloads.client.url).openStream(), new File(out, "client.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch (Exception e) {
 			Utils.deleteDirectory(out);
 			throw new ConnectionException("Error downloading client", e);
@@ -126,7 +126,7 @@ public class JsonDownloader {
 				if (os == Os.LINUX) url += "Linux.zip";
 				else if (os == Os.OSX) url += "OSX.zip";
 				else url += "Windows.zip";
-				Files.copy(new URL(url).openStream(), new File(jvm, "jvm.zip").toPath());
+				Files.copy(new URL(url).openStream(), new File(jvm, "jvm.zip").toPath(), StandardCopyOption.REPLACE_EXISTING);
 				System.out.println(String.format("[JsonDownloader] Extracting JVM..."));
 				unzipFileAndDelete(jvm, "jvm.zip", "jvm");
 			}
