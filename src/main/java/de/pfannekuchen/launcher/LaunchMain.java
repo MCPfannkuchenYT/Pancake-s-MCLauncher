@@ -1,12 +1,12 @@
 package de.pfannekuchen.launcher;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 
 import com.google.gson.Gson;
 
 import de.pfannekuchen.launcher.json.VersionJson;
+import de.pfannekuchen.launcher.launcher.MinecraftLauncher;
 
 /**
  * Defines the entry point for testing purposes
@@ -19,17 +19,15 @@ public class LaunchMain {
 	/**
 	 * Entry point for testing with given file
 	 * @param args Unused parameters
-	 * @throws IOException Throws an IO Exception whenever something failed
+	 * @throws Exception Throws an Exception whenever something failed
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		File out = new File(".out");
-		File jvmCache = new File(System.getProperty("user.home"), ".jvmcache");
 		if (out.exists()) Utils.deleteDirectory(out);
-		if (jvmCache.exists()) Utils.deleteDirectory(jvmCache);
-		VersionJson in = gson.fromJson(Utils.readAllBytesAsStringFromURL(new URL("https://launchermeta.mojang.com/v1/packages/f07e0f1228f79b9b04313fc5640cd952474ba6f5/1.12.2.json")), VersionJson.class);
+		VersionJson in = gson.fromJson(Utils.readAllBytesAsStringFromURL(new URL("https://launchermeta.mojang.com/v1/packages/20116297638f7c70cd046e25a6ac90fee4cae61a/1.6.json")), VersionJson.class);
 		
-		JsonDownloader.downloadDeps(out, in, jvmCache);
-		MinecraftLauncher.launch(out, new File(out, "natives"), new File(out, "libraries"), new File(out, ".minecraft"), jvmCache, in, true, "Pfannekuchen", new File(out, "assets").getAbsolutePath(), "uuidLuL", "accesme");
+		JsonDownloader.downloadDeps(out, in);
+		MinecraftLauncher.launch(out, new File(out, "natives"), new File(out, "libraries"), new File(out, ".minecraft"), in, true, "Pfannekuchen", new File(out, "assets").getAbsolutePath(), "uuidLuL", "accesme", "1.12.2");
 	}
 	
 }

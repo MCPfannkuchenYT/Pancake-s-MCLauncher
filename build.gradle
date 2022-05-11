@@ -7,9 +7,12 @@ plugins {
     id 'maven-publish'
 }
 
+// Compile for all java versions
+sourceCompatibility = targetCompatibility = 1.8
+
 // Basic Properties
 group = "de.pfannekuchen"
-version = "1.0.0-SNAPSHOT"
+version = "1.0.0"
 archivesBaseName = "launcher"
 
 // Publish with sources and javadoc
@@ -25,9 +28,9 @@ repositories {
 
 dependencies {
 	// Use GSON for easy JSON reading
-	implementation 'com.google.code.gson:gson:2.8.8'
+	implementation 'com.google.code.gson:gson:2.9.0'
 	// Use Zip4J for easy unzipping
-	implementation 'net.lingala.zip4j:zip4j:2.9.0'
+	implementation 'net.lingala.zip4j:zip4j:2.10.0'
 }
 
 // Publishing Settings

@@ -41,10 +41,9 @@ public class JsonDownloader {
 	 * @param out Output Folder for dependencies
 	 * @param in Json to go off
 	 */
-	public static void downloadDeps(File out, VersionJson in, File jvmCache) {
+	public static void downloadDeps(File out, VersionJson in) {
 		int time = (int) System.currentTimeMillis();
 		out.mkdir();
-		jvmCache.mkdir();
 		File natives = new File(out, "natives");
 		File libs = new File(out, "libraries");
 		File runtime = new File(out, ".minecraft");
@@ -116,23 +115,6 @@ public class JsonDownloader {
 		} catch (Exception e) {
 			Utils.deleteDirectory(out);
 			throw new ConnectionException("Error downloading client", e);
-		}
-		File jvm = new File(jvmCache, "adoptopenjdk-" + in.javaVersion.majorVersion);
-		try {
-			if (!jvm.exists()) {
-				jvm.mkdir();
-				System.out.println(String.format("[JsonDownloader] Downloading JVM..."));
-				String url = "https://data.mgnet.work/java/AdoptOpenJDK-Java" + in.javaVersion.majorVersion + "-";
-				if (os == Os.LINUX) url += "Linux.zip";
-				else if (os == Os.OSX) url += "OSX.zip";
-				else url += "Windows.zip";
-				Files.copy(new URL(url).openStream(), new File(jvm, "jvm.zip").toPath(), StandardCopyOption.REPLACE_EXISTING);
-				System.out.println(String.format("[JsonDownloader] Extracting JVM..."));
-				unzipFileAndDelete(jvm, "jvm.zip", "jvm");
-			}
-		} catch (Exception e) {
-			Utils.deleteDirectory(jvm);
-			throw new ConnectionException("Error downloading JVM", e);
 		}
 		try {
 			System.out.println(String.format("[JsonDownloader] Downloading Assets..."));
