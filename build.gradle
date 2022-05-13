@@ -24,6 +24,9 @@ java {
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
+    // Use Mixin Maven for mixin
+    maven { url 'https://repo.spongepowered.org/repository/maven-public/' }
+    maven { url 'https://repo.fusesource.com/nexus/content/repositories/releases-3rd-party/' }
 }
 
 dependencies {
@@ -31,6 +34,14 @@ dependencies {
 	implementation 'com.google.code.gson:gson:2.9.0'
 	// Use Zip4J for easy unzipping
 	implementation 'net.lingala.zip4j:zip4j:2.10.0'
+	// Use Mixin for modifying class files
+	implementation files("mixin-0.8.5.jar")
+	// ASM for mixin
+	implementation "org.ow2.asm:asm-tree:9.3"
+    implementation "org.ow2.asm:asm-commons:9.3"
+    implementation "org.ow2.asm:asm-util:9.3"
+	// Google stuff for mixin
+	implementation 'com.google.guava:guava:21.0'
 }
 
 // Publishing Settings

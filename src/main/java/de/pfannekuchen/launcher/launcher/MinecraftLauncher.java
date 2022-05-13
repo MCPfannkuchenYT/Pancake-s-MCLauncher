@@ -3,6 +3,9 @@ package de.pfannekuchen.launcher.launcher;
 import java.io.File;
 import java.util.Arrays;
 
+import org.spongepowered.asm.launch.MixinBootstrap;
+import org.spongepowered.asm.mixin.Mixins;
+
 import de.pfannekuchen.launcher.json.VersionJson;
 
 /**
@@ -28,6 +31,10 @@ public class MinecraftLauncher {
 		System.setProperty("org.lwjgl.librarypath", natives.getAbsolutePath());
 		
 		ZipClassLoader loader = new ZipClassLoader(new File(bin, "client.jar"), libraries.listFiles());
+		
+		MixinBootstrap.init();
+		Mixins.addConfiguration("mixin.json");
+		
 		loader.preloadClasses();
 
 		System.out.println(String.format("[MinecraftLauncher] Launching via arguments: %s", Arrays.toString(args)));

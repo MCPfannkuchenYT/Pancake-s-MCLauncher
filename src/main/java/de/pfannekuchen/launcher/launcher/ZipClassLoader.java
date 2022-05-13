@@ -20,6 +20,9 @@ import java.util.zip.ZipInputStream;
  */
 public class ZipClassLoader extends ClassLoader {
 
+	public static ZipClassLoader instance;
+	
+	private URL[] urls;
 	private HashMap<String, URL> resources = new HashMap<>();
 	private HashMap<String, byte[]> classes = new HashMap<>();
 	
@@ -32,6 +35,14 @@ public class ZipClassLoader extends ClassLoader {
 		for (File zip : libs)
 			loadZip(zip);
 		loadZip(client);
+		
+		urls = new URL[1 + libs.length];
+		for (int i = 0; i < libs.length; i++) {
+			urls[i] = libs[i].toURI().toURL();
+		}
+		urls[urls.length-1] = client.toURI().toURL();
+
+		instance = this;
 	}
 
 	/**
@@ -73,11 +84,18 @@ public class ZipClassLoader extends ClassLoader {
 			try { loadClass(clazz); } catch (Throwable e) { }
 	}
 	
+	/**
+	 * Returns a classes bytes
+	 */
+	public static byte[] getBytes(String name) {
+		return instance.classes.get(name);
+	}
+	
 	@Override
 	public InputStream getResourceAsStream(String name) {
 		try {
 			URL resource = this.getResource(name);
-			return resource == null ? null : resource.openStream();
+			return resource == null ? super.getResourceAsStream(name) : resource.openStream();
 		} catch (IOException e) {
 			return super.getResourceAsStream(name);
 		}
@@ -105,5 +123,10 @@ public class ZipClassLoader extends ClassLoader {
 		}
 		return super.loadClass(name);
 	}
-
+	
+	@Override
+	public Class<?> findClass(String name) throws ClassNotFoundException {
+		return super.findClass(name);
+	}
+	
 }
