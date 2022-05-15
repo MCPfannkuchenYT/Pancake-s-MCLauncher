@@ -35,7 +35,7 @@ dependencies {
 	// Use Zip4J for easy unzipping
 	implementation 'net.lingala.zip4j:zip4j:2.10.0'
 	// Use Mixin for modifying class files
-	implementation files("mixin-0.8.5.jar")
+	implementation 'org.spongepowered:mixin:0.8.5'
 	// ASM for mixin
 	implementation "org.ow2.asm:asm-tree:9.3"
     implementation "org.ow2.asm:asm-commons:9.3"

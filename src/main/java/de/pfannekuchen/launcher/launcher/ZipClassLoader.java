@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.spongepowered.asm.mixin.MixinEnvironment;
+import org.spongepowered.asm.mixin.transformer.IMixinTransformer;
+
 /**
  * A custom class loader that loads and manipulates classes and resources from jars
  * @author Pancake
@@ -21,6 +24,7 @@ import java.util.zip.ZipInputStream;
 public class ZipClassLoader extends ClassLoader {
 
 	public static ZipClassLoader instance;
+	public static IMixinTransformer mixinTransformer;
 	
 	private URL[] urls;
 	private HashMap<String, URL> resources = new HashMap<>();
@@ -72,6 +76,7 @@ public class ZipClassLoader extends ClassLoader {
 				}
 			}
 		}
+		stream.close();
 	}
 	
 	/**
@@ -119,6 +124,10 @@ public class ZipClassLoader extends ClassLoader {
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 		if (this.classes.containsKey(name)) {
 			byte[] clazz = this.classes.remove(name);
+			
+			// mixin processor
+			clazz = ZipClassLoader.mixinTransformer.transformClass(MixinEnvironment.getCurrentEnvironment(), name, clazz);
+			
 			this.defineClass(name, clazz, 0, clazz.length);
 		}
 		return super.loadClass(name);
