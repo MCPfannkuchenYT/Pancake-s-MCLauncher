@@ -11,12 +11,10 @@ import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.launch.platform.container.ContainerHandleVirtual;
 import org.spongepowered.asm.launch.platform.container.IContainerHandle;
 import org.spongepowered.asm.mixin.MixinEnvironment.CompatibilityLevel;
-import org.spongepowered.asm.mixin.transformer.IMixinTransformerFactory;
 import org.spongepowered.asm.service.IClassBytecodeProvider;
 import org.spongepowered.asm.service.IClassProvider;
 import org.spongepowered.asm.service.IClassTracker;
 import org.spongepowered.asm.service.IMixinAuditTrail;
-import org.spongepowered.asm.service.IMixinInternal;
 import org.spongepowered.asm.service.ITransformerProvider;
 import org.spongepowered.asm.service.MixinServiceAbstract;
 import org.spongepowered.asm.transformers.MixinClassReader;
@@ -116,14 +114,6 @@ public class MCLauncherMixinService extends MixinServiceAbstract implements ICla
 	@Override
 	public ClassNode getClassNode(String name, boolean runTransformers) throws ClassNotFoundException, IOException {
 		return this.getClassNode(name);
-	}
-	
-	@Override
-	public void offer(IMixinInternal internal) {
-		if (internal instanceof IMixinTransformerFactory) {
-			ZipClassLoader.mixinTransformer = ((IMixinTransformerFactory) internal).createTransformer();
-		}
-		super.offer(internal);
 	}
 	
 }

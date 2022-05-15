@@ -23,10 +23,10 @@ public class LaunchMain {
 	 */
 	public static void main(String[] args) throws Exception {
 		File out = new File(".out");
-		if (out.exists()) Utils.deleteDirectory(out);
+//		if (out.exists()) Utils.deleteDirectory(out);
 		VersionJson in = gson.fromJson(Utils.readAllBytesAsStringFromURL(new URL("https://launchermeta.mojang.com/v1/packages/cfd75871c03119093d7c96a6a99f21137d00c855/1.12.2.json")), VersionJson.class);
 		
-		JsonDownloader.downloadDeps(out, in);
+//		JsonDownloader.downloadDeps(out, in);
 		MinecraftLauncher.launch(out, new File(out, "natives"), new File(out, "libraries"), new File(out, ".minecraft"), in, true, "Pfannekuchen", new File(out, "assets").getAbsolutePath(), "uuidLuL", "accesme", "1.12.2");
 	}
 	
